@@ -1,10 +1,3 @@
----
-tags: [Import-8d9d]
-title: Godot4 TapTap SDK 使用说明
-created: '2024-01-09T14:00:17.972Z'
-modified: '2024-01-09T14:05:35.170Z'
----
-
 # Godot4 TapTap SDK 使用说明
 
 此源码包括sdk与godot两部分的完整项目，下载后导入到4.2版本的引擎中便可使用。
@@ -15,7 +8,6 @@ modified: '2024-01-09T14:05:35.170Z'
 * 一键登录
 * 一键防沉迷认证
 * 内嵌动态
-* 激励广告
 _________________
 ## 安装方法
 1. 复制项目本目录下plugin\demo\addons\GodotTapTapSDK文件内全部内容到你的add项目中或者自行编译整个项目。
