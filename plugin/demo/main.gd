@@ -1,36 +1,37 @@
 extends Node2D
 
-func _ready():
-	GodotTapTap.onRewardVideoAdCallBack.connect(self.onRewardVideoAdCallBack)
+@export var tap_client_id := ""
+@export var tap_client_token := ""
+@export_enum("CN", "GLOBAL") var tap_region := "CN"
+@export var enable_tap_log := true
 
-func onRewardVideoAdCallBack(code):
-	print("===================")
-	$Label.text = str(code)
+
+func _ready():
+	GodotTapTap.onLoginResult.connect(_on_login_result)
+	GodotTapTap.onAntiAddictionCallback.connect(_on_anti_addiction_callback)
+	GodotTapTap.onTapMomentCallBack.connect(_on_tap_moment_callback)
+	GodotTapTap.initialize(tap_client_id, tap_client_token, tap_region, enable_tap_log)
+
 
 func _on_Button_pressed():
-		GodotTapTap.tap_login()
-
-
-func _on_button_3_pressed() -> void:
-		GodotTapTap.momentOpen() 
+	GodotTapTap.tap_login()
 
 
 func _on_button_2_pressed() -> void:
-		GodotTapTap.quickCheck()
+	GodotTapTap.quickCheck()
 
 
-func _on_button_4_pressed():
-	GodotTapTap.initRewardVideoAd(1000774,"测试奖励","",OS.get_unique_id())
+func _on_button_3_pressed() -> void:
+	GodotTapTap.momentOpen()
 
 
-func _on_button_5_pressed():
-	GodotTapTap.showRewardVideoAd()
+func _on_login_result(code, account_json):
+	$Label.text = "登录: %s\n%s" % [code, account_json]
 
-#应用id
-const mediaId = 0
-#应用名称
-const mediaName = ""
-#key
-const mediaKey = ""
-func _on_button_6_pressed():
-	GodotTapTap.initAd(mediaId,mediaName,mediaKey)
+
+func _on_anti_addiction_callback(code):
+	$Label.text = "合规认证: %s" % code
+
+
+func _on_tap_moment_callback(code):
+	$Label.text = "内嵌动态: %s" % code

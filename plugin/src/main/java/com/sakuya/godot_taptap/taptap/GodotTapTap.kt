@@ -2,146 +2,110 @@ package com.sakuya.godot_taptap.taptap
 
 import android.app.Activity
 import android.util.Log
-import com.tapsdk.bootstrap.Callback
-import com.tapsdk.bootstrap.TapBootstrap
-import com.tapsdk.bootstrap.account.TDSUser
-import com.tapsdk.bootstrap.exceptions.TapError
-import com.tapsdk.moment.TapMoment
-import com.tapsdk.tapad.CustomUser
-import com.tapsdk.tapad.TapAdConfig
-import com.tapsdk.tapad.TapAdCustomController
-import com.tapsdk.tapad.TapAdLocation
-import com.tapsdk.tapad.TapAdManager
-import com.tapsdk.tapad.TapAdSdk
-import com.tapsdk.tapconnect.TapConnect
-import com.taptap.sdk.Profile
-import com.taptap.sdk.TapLoginHelper
-import com.tds.common.entities.TapAntiAddictionConfig
-import com.tds.common.entities.TapConfig
-import com.tds.common.models.TapRegionType
+import com.taptap.sdk.compliance.option.TapTapComplianceOptions
+import com.taptap.sdk.core.TapTapRegion
+import com.taptap.sdk.core.TapTapSdk
+import com.taptap.sdk.core.TapTapSdkOptions
+import com.taptap.sdk.kit.internal.callback.TapTapCallback
+import com.taptap.sdk.kit.internal.exception.TapTapException
+import com.taptap.sdk.login.Scopes
+import com.taptap.sdk.login.TapTapAccount
+import com.taptap.sdk.login.TapTapLogin
+import org.json.JSONObject
 
-class GodotTapTap(val clientId:String?,
-                  val clientToken:String?,
-                  val serverUrl: String?) {
+class GodotTapTap(
+    private val clientId: String,
+    private val clientToken: String,
+    private val region: String,
+    private val enableLog: Boolean
+) {
 
     companion object {
+        private const val TAG = "GodotTapTapSDK"
+        const val LOGIN_SUCCESS = 200
+        const val LOGIN_FAILED = 400
+        const val LOGIN_CANCELLED = 499
+
         inline fun build(block: Builder.() -> Unit) = Builder().apply(block).build()
     }
 
     class Builder {
-        var clientId: String? = null
-        var clientToken: String? = null
-        var serverUrl: String? = null
+        var clientId: String = ""
+        var clientToken: String = ""
+        var region: String = "CN"
+        var enableLog: Boolean = false
 
-        fun build() = GodotTapTap(clientId,clientToken,serverUrl)
+        fun build() = GodotTapTap(clientId, clientToken, region, enableLog)
     }
 
-    /*
-    初始化sdk
-     */
-    fun init(activity: Activity,block: () -> Unit){
+    fun initialize(activity: Activity, onInitialized: () -> Unit) {
+        if (clientId.isBlank() || clientToken.isBlank()) {
+            Log.e(TAG, "Client ID and Client Token are required to initialize TapSDK")
+            return
+        }
+
         activity.runOnUiThread {
-
-            // TapAntiAddicitonConfig 构造方法中参数为是否显示切换账号
-            val tapAntiAddictionConfig = TapAntiAddictionConfig(true)
-
-            val tdsConfig = TapConfig.Builder()
-                .withAppContext(activity) // Context 上下文
-                .withClientId(clientId) // 必须，开发者中心对应 Client ID
-                .withClientToken(clientToken) // 必须，开发者中心对应 Client Token
-                .withServerUrl(serverUrl) // 必须，开发者中心 > 你的游戏 > 游戏服务 > 基本信息 > 域名配置 > API
-                .withRegionType(TapRegionType.CN) // TapRegionType.CN：中国大陆，TapRegionType.IO：其他国家或地区
-                .withAntiAddictionConfig(tapAntiAddictionConfig)
-                .build()
-            TapBootstrap.init(activity, tdsConfig)
-
-            block()
+            TapTapSdk.init(
+                context = activity,
+                sdkOptions = TapTapSdkOptions(
+                    clientId = clientId,
+                    clientToken = clientToken,
+                    region = parseRegion(region),
+                    enableLog = enableLog
+                ),
+                options = arrayOf(
+                    TapTapComplianceOptions(
+                        showSwitchAccount = true,
+                        useAgeRange = false
+                    )
+                )
+            )
+            onInitialized()
         }
     }
 
-    fun adnInit(activity: Activity,mediaId:Long,mediaName:String,mediaKey:String){
-        TapAdManager.get().requestPermissionIfNecessary(activity)
-        val config = TapAdConfig.Builder()
-            .withMediaId(mediaId) // 必选参数。为 TapADN 注册的媒体 ID
-            .withMediaName(mediaName) // 必选参数。为 TapADN 注册的媒体名称
-            .withMediaKey(mediaKey) // 必选参数。媒体密钥，可以在TapADN后台查看
-            .withMediaVersion("1") // 必选参数。默认值 "1"
-            .withTapClientId(clientId) // 可选参数。TapTap 开发者中心的游戏 Client ID
-            .enableDebug(true) // 可选参数，是否打开 debug 调试信息输出：true 打开、false 关闭。默认 false 关闭
-            .withGameChannel("TapTap") // 必选参数，渠道
-            .withCustomController(object : TapAdCustomController() {
+    fun isLogin(): Boolean = TapTapLogin.getCurrentTapAccount() != null
 
-                // 开发者可以传入 oaid
-                // 信通院 OAID 的相关采集——如何获取 OAID：
-                // 1. 移动安全联盟官网 http://www.msa-alliance.cn/
-                // 2. 信通院统一 SDK 下载 http://msa-alliance.cn/col.jsp?id=120
-                override fun getDevOaid(): String {
-
-                    return "aaa"
-                }
-
-                // 是否允许 SDK 主动获取 ANDROID_ID
-                override fun isCanUseAndroidId(): Boolean {
-                    return true
-                }
-
-            })
-            .build()
-
-        TapAdSdk.init(activity, config)
-    }
-
-    /*
-    是否登录
-     */
-    fun isLogin():Boolean{
-        return null != TDSUser.currentUser()
-    }
-
-    fun login(activity: Activity,block:(String?) -> Unit){
-        TDSUser.loginWithTapTap(activity, object : Callback<TDSUser> {
-            override fun onSuccess(resultUser: TDSUser) {
-                block(resultUser.toJSONInfo())
+    fun login(activity: Activity, onResult: (Int, String) -> Unit) {
+        val scopes = arrayOf(Scopes.SCOPE_PUBLIC_PROFILE)
+        TapTapLogin.loginWithScopes(activity, scopes, object : TapTapCallback<TapTapAccount> {
+            override fun onSuccess(result: TapTapAccount) {
+                onResult(LOGIN_SUCCESS, accountToJson(result))
             }
 
-            override fun onFail(error: TapError) {
-                Log.e("tap_login error",error.message.toString())
-                block(null)
+            override fun onFail(exception: TapTapException) {
+                Log.e(TAG, "TapTap login failed", exception)
+                onResult(LOGIN_FAILED, "")
             }
-        }, "public_profile")
+
+            override fun onCancel() {
+                onResult(LOGIN_CANCELLED, "")
+            }
+        })
     }
 
-    /*
-    获取登录信息
-     */
-    fun getCurrentProfile():String?{
-        return try {
-            val profile: Profile = TapLoginHelper.getCurrentProfile()
-            profile.toJsonString()
-        }catch (e:Exception){
-            null
+    fun getCurrentProfile(): String? {
+        return TapTapLogin.getCurrentTapAccount()?.let(::accountToJson)
+    }
+
+    fun getCurrentOpenId(): String? = TapTapLogin.getCurrentTapAccount()?.openId
+
+    fun logOut() {
+        TapTapLogin.logout()
+    }
+
+    private fun accountToJson(account: TapTapAccount): String {
+        return JSONObject()
+            .put("openId", account.openId)
+            .put("unionId", account.unionId)
+            .toString()
+    }
+
+    private fun parseRegion(value: String): Int {
+        return if (value.equals("GLOBAL", ignoreCase = true)) {
+            TapTapRegion.GLOBAL
+        } else {
+            TapTapRegion.CN
         }
-    }
-
-    /**
-     * 登出
-     */
-    fun logOut(){
-        TDSUser.logOut()
-    }
-
-    /**
-     * 设置悬浮窗口
-     */
-    fun setEntryVisible(visible:Boolean){
-        TapConnect.setEntryVisible(visible)
-    }
-
-    /**
-     * 打开内嵌动态
-     */
-    fun momentOpen(ori:Int){
-        //使用指定屏幕方向
-        TapMoment.open(ori)
     }
 }

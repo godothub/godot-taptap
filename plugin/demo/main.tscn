@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://main.gd" id="1_j0gfq"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_o862e"]
-font_size = 30
+font_size = 24
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_j0gfq")
@@ -47,56 +47,15 @@ grow_horizontal = 2
 grow_vertical = 2
 text = "内嵌动态"
 
-[node name="Button6" type="Button" parent="."]
-anchors_preset = 14
-anchor_top = 0.5
-anchor_right = 1.0
-anchor_bottom = 0.5
-offset_left = 110.0
-offset_top = 413.0
-offset_right = 390.0
-offset_bottom = 475.0
-grow_horizontal = 2
-grow_vertical = 2
-text = "初始化广告sdk"
-
-[node name="Button4" type="Button" parent="."]
-anchors_preset = 14
-anchor_top = 0.5
-anchor_right = 1.0
-anchor_bottom = 0.5
-offset_left = 110.0
-offset_top = 517.0
-offset_right = 390.0
-offset_bottom = 579.0
-grow_horizontal = 2
-grow_vertical = 2
-text = "加载广告"
-
-[node name="Button5" type="Button" parent="."]
-anchors_preset = 14
-anchor_top = 0.5
-anchor_right = 1.0
-anchor_bottom = 0.5
-offset_left = 109.0
-offset_top = 615.0
-offset_right = 389.0
-offset_bottom = 677.0
-grow_horizontal = 2
-grow_vertical = 2
-text = "播放广告"
-
 [node name="Label" type="Label" parent="."]
-offset_left = 149.0
-offset_top = 758.0
-offset_right = 426.0
-offset_bottom = 839.0
-text = "广告状态"
+offset_left = 70.0
+offset_top = 390.0
+offset_right = 578.0
+offset_bottom = 520.0
+text = "请在 Main 节点的 Inspector 中配置 TapTap Client ID 和 Client Token"
+autowrap_mode = 2
 label_settings = SubResource("LabelSettings_o862e")
 
 [connection signal="pressed" from="Button" to="." method="_on_Button_pressed"]
 [connection signal="pressed" from="Button2" to="." method="_on_button_2_pressed"]
 [connection signal="pressed" from="Button3" to="." method="_on_button_3_pressed"]
-[connection signal="pressed" from="Button6" to="." method="_on_button_6_pressed"]
-[connection signal="pressed" from="Button4" to="." method="_on_button_4_pressed"]
-[connection signal="pressed" from="Button5" to="." method="_on_button_5_pressed"]

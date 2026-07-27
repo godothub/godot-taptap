@@ -1,36 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-
-    <!-- 为了获取更精准的推送数据、建议游戏加上的权限 -->
-    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
-    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
-    <uses-permission android:name="android.permission.BLUETOOTH"/>
-    <!-- targetVersion 31 及以上 建议游戏加上这个权限 -->
-    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
-    <!-- 为了获取更好的广告体验，建议游戏加上以下权限来获取用户信息 -->
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <!-- 加上下列权限可以提高广告的转化率 -->
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.REORDER_TASKS" />
+
     <application>
-        <!--
-        Plugin metadata:
-
-        - In the `android:name` attribute, the `org.godotengine.plugin.v2` prefix
-        is required so Godot can recognize the project as a valid Godot
-        Android plugin. The plugin name following the prefix should match the value
-        of the plugin name returned by the plugin initializer.
-
-        - The `android:value` attribute should be the classpath to the plugin
-        initializer.
-        -->
         <meta-data
             android:name="org.godotengine.plugin.v2.${godotPluginName}"
-            android:value="${godotPluginPackageName}.GodotAndroidPlugin"/>
+            android:value="${godotPluginPackageName}.GodotAndroidPlugin" />
     </application>
 
     <queries>
