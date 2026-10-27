@@ -54,6 +54,8 @@ func _ready() -> void:
 | `region` | `String` | `"CN"` | `CN` 或 `GLOBAL`，必须与应用配置的地区一致 |
 | `enable_log` | `bool` | `false` | 是否输出 TapSDK 调试日志，发布包建议关闭 |
 
+> **隐私合规**：本插件默认关闭了 TapTap SDK 的 ContentProvider 自动初始化（`TapTapKitInitProvider` 与 `ThemisProvider`），避免在用户同意隐私政策前采集设备标识（OAID 等）。因此必须在用户同意隐私政策后调用 `GodotTapTap.initialize()` 手动初始化，SDK 才会启动。
+
 所有异步结果通过 `GodotTapTap` 信号返回。账户、成就、云存档和排行榜等结构化结果使用 JSON 字符串；统一解析方式如下：
 
 ```gdscript
